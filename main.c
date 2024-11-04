@@ -12,7 +12,7 @@ int main(){
         switch (op){
         case 'E':
             scanf("%d %c", &node, &trash) ;
-            entra_node() ;
+            entra_node(node) ;
             break ;
         case 'S':
             scanf("%d %c", &node, &trash) ;
