@@ -1,30 +1,30 @@
 #include <stdio.h>
-//#include "dht.h"
+#include "dht.h"
 
 int main(){
 
     int ts, node, key ;
-    char op ;
+    char op, trash;
 
     scanf("%d", &ts) ;
-    while(ts > 0) {
-        scanf(" %c ", &op) ;
+
+    while(scanf(" %c ", &op) == 1) {
         switch (op){
         case 'E':
-            scanf("%d", &node) ;
-            printf("Operação entrada de nó %d\n", node) ;
+            scanf("%d %c", &node, &trash) ;
+            entra_node() ;
             break ;
         case 'S':
-            scanf("%d", &node) ;
-            printf("Operação saída de nó %d\n", node) ;
+            scanf("%d %c", &node, &trash) ;
+            sai_node() ;
             break ;
         case 'L':
             scanf("%d %d", &node, &key) ;
-            printf("Operação lookup de %d de nó %d\n", key, node) ;
+            lookup_key() ;
             break ;
         case 'I':
             scanf("%d %d", &node, &key) ;
-            printf("Operação inclusão de %d de nó %d\n", key, node) ;
+            insere_key() ;
             break ;
         }
         scanf("%d", &ts) ;
