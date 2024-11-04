@@ -24,7 +24,7 @@ int main(){
             break ;
         case 'I':
             scanf("%d %d", &node, &key) ;
-            insere_key() ;
+            insere_key(node, key) ;
             break ;
         }
         scanf("%d", &ts) ;

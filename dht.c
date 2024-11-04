@@ -10,7 +10,7 @@ nodo_dht *cria_nodo(int n) {
     nodo_dht *node = malloc(sizeof(nodo_dht)) ;
     node->N = n ;
     node->keys = malloc(KEYS_ALLOC_S * sizeof(nodo_dht)) ;
-
+    node->top = 0 ;
     return node ;
 }
 
@@ -53,6 +53,11 @@ void print_ring() {
         }
         printf("]\n") ;
 
+        printf("{ ") ;
+        for(int i = 0; i<it->top; i++)
+            printf("%d ", it->keys[i]) ;
+        printf("}\n") ;
+
         it = it->next ;
     } while (it != RING) ;
     printf("\n\n") ;
@@ -67,7 +72,7 @@ void fix_lookup_tables() {
                 it->lookupT[i] = RING ;
                 continue ;
             }
-            while(it->N + (int) pow(2, i) >= it_aux->N && it_aux != RING) it_aux = it_aux->next ;
+            while(it->N + (int) pow(2, i) > it_aux->N && it_aux != RING) it_aux = it_aux->next ;
             it->lookupT[i] = it_aux ;
         }
 
@@ -93,6 +98,27 @@ void lookup_key() {
     printf("Lookup de chave\n") ;
 }
 
-void insere_key() {
-    printf("Inserção de chave\n") ;
+void insere_key(int node, int key) {
+    nodo_dht *it = RING ;
+    while(it->N != node) it = it->next ;
+//    nodo_dht *aux = it ;
+
+    while(it->N < key) {
+        int idx ;
+
+        if(key > M) {
+            idx = ceil(log2(M)) - 1 ;
+        } else idx = ceil(log2(key - it->N)) ;
+
+        if(it->lookupT[idx] == RING) {
+            printf("VAI INSERIR NO RING\n") ;
+            it = RING ;
+            break ;
+        }
+        it = it->lookupT[idx] ;
+    }
+    it->keys[it->top] = key ;
+    it->top++ ;
+
+    print_ring() ;
 }
