@@ -16,11 +16,11 @@ int main(){
             break ;
         case 'S':
             scanf("%d %c", &node, &trash) ;
-            sai_node() ;
+            sai_node(node) ;
             break ;
         case 'L':
             scanf("%d %d", &node, &key) ;
-            lookup_key() ;
+            lookup_key(ts, node, key) ;
             break ;
         case 'I':
             scanf("%d %d", &node, &key) ;

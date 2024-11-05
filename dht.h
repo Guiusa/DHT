@@ -10,6 +10,6 @@ typedef struct nodo_dht {
 
 void print_ring() ;
 void entra_node(int n) ;
-void sai_node() ;
-void lookup_key() ;
+void sai_node(int n) ;
+void lookup_key(int ts, int node, int key) ;
 void insere_key(int node, int key) ;

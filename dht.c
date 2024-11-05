@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 
+nodo_dht *pilha_nodo[32] ;
 nodo_dht *RING = NULL;
 int M = 0 ;
 
@@ -80,28 +81,52 @@ void fix_lookup_tables() {
     } while (it != RING) ;
 }
 
+void rouba_chaves(nodo_dht *nodo) {
+    nodo_dht *aux = nodo->next ;
+    for(int i = 0; i<aux->top;){
+        if(aux->keys[i] <= nodo->N){
+            if(aux == RING && aux->keys[i] <= aux-> N){
+                i++ ;
+                continue ;
+            }
+            nodo->keys[nodo->top] = aux->keys[i] ;
+            aux->keys[i] = aux->keys[aux->top - 1] ;
+            aux->top--;
+            nodo->top++;
+        } else i++ ;
+    }
+
+}
+
 void entra_node(int n) {
     nodo_dht *nodo = cria_nodo(n) ;
     insere_nodo(nodo) ;
     if(n > M) M = n ;
 
     fix_lookup_tables() ;
+    rouba_chaves(nodo) ;
 
     print_ring() ;
 }
 
-void sai_node() {
-    printf("Sai nodo\n") ;
+void sai_node(int node) {
+    nodo_dht *it = RING ;
+    while(it->N != node) it = it->next ;
+    nodo_dht *aux = it->next ;
+    for(int i = 0; i<it->top; i++){
+        aux->keys[aux->top++] = it->keys[i] ;
+    }
+    it->next->prev = it->prev ;
+    it->prev->next = it->next ;
+    if(RING == it) RING = it->next ;
+    fix_lookup_tables() ;
+    print_ring() ;
 }
 
-void lookup_key() {
-    printf("Lookup de chave\n") ;
-}
 
 void insere_key(int node, int key) {
     nodo_dht *it = RING ;
     while(it->N != node) it = it->next ;
-//    nodo_dht *aux = it ;
 
     while(it->N < key) {
         int idx ;
@@ -111,7 +136,6 @@ void insere_key(int node, int key) {
         } else idx = ceil(log2(key - it->N)) ;
 
         if(it->lookupT[idx] == RING) {
-            printf("VAI INSERIR NO RING\n") ;
             it = RING ;
             break ;
         }
@@ -121,4 +145,33 @@ void insere_key(int node, int key) {
     it->top++ ;
 
     print_ring() ;
+}
+
+void lookup_key(int ts, int node, int key) {
+    int t = 0;
+
+    nodo_dht *it = RING ;
+    while(it->N != node) it = it->next ;
+
+    do {
+        pilha_nodo[t] = it ;
+        t ++ ;
+        int idx ;
+        if(key > M){
+            idx = ceil(log2(M)) - 1 ;
+        } else idx = ceil(log2(key - it->N)) ;
+
+        if(it->lookupT[idx] == RING) {
+            it = RING ;
+            break ;
+        }
+        it = it->lookupT[idx] ;
+    } while(it->N < key) ;
+
+    printf("%d L %d {", ts, key) ;
+    for(int i = 0; i<t; i++){
+        printf("%d", pilha_nodo[i]->N) ;
+        if(i < i-1) printf(",") ;
+    }
+    printf("}\n") ;
 }
