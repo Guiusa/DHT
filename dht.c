@@ -69,11 +69,7 @@ void fix_lookup_tables() {
     do {
         nodo_dht *it_aux = it->next ;
         for(int i = 0; i<ceil(log2((double) M)); i++){
-            if(it_aux == RING){
-                it->lookupT[i] = RING ;
-                continue ;
-            }
-            while(it->N + (int) pow(2, i) > it_aux->N && it_aux != RING) it_aux = it_aux->next ;
+            while((it->N + (int) pow(2, i)) % M > it_aux->N) it_aux = it_aux->next ;
             it->lookupT[i] = it_aux ;
         }
 
@@ -106,7 +102,6 @@ void entra_node(int n) {
     fix_lookup_tables() ;
     rouba_chaves(nodo) ;
 
-    print_ring() ;
 }
 
 void sai_node(int node) {
@@ -120,7 +115,6 @@ void sai_node(int node) {
     it->prev->next = it->next ;
     if(RING == it) RING = it->next ;
     fix_lookup_tables() ;
-    print_ring() ;
 }
 
 
@@ -133,7 +127,7 @@ void insere_key(int node, int key) {
 
         if(key > M) {
             idx = ceil(log2(M)) - 1 ;
-        } else idx = ceil(log2(key - it->N)) ;
+        } else idx = ceil(log2(key - it->N)-1) ;
 
         if(it->lookupT[idx] == RING) {
             it = RING ;
@@ -144,34 +138,52 @@ void insere_key(int node, int key) {
     it->keys[it->top] = key ;
     it->top++ ;
 
-    print_ring() ;
 }
 
+void print_pilha(int t, int ts, int key) {
+    printf("%d L %d {", ts, key) ;
+    for(int i = 0; i<t; i++){
+        printf("%d", pilha_nodo[i]->N) ;
+        if(i < t-1) printf(",") ;
+    }
+    printf("}\n") ;
+    for(int i = 0; i<t; i++){
+        printf("%d T %d {", ts, pilha_nodo[i]->N) ;
+        for(int j = 0; j<ceil(log2(M)); j++){
+            printf("%d", pilha_nodo[i]->lookupT[j]->N) ;
+            if(j < ceil(log2(M))-1) printf(",") ;
+        }
+        printf("}\n") ;
+    }
+    printf("\n\n") ;
+}
 void lookup_key(int ts, int node, int key) {
     int t = 0;
 
     nodo_dht *it = RING ;
     while(it->N != node) it = it->next ;
 
-    do {
-        pilha_nodo[t] = it ;
-        t ++ ;
+    pilha_nodo[t] = it ;
+    t++ ;
+
+    while (it->N < key) {
         int idx ;
         if(key > M){
             idx = ceil(log2(M)) - 1 ;
-        } else idx = ceil(log2(key - it->N)) ;
+        } else idx = ceil(log2(key - it->N)-1) ;
 
         if(it->lookupT[idx] == RING) {
             it = RING ;
+            pilha_nodo[t] = it ;
+            t++ ;
             break ;
         }
-        it = it->lookupT[idx] ;
-    } while(it->N < key) ;
 
-    printf("%d L %d {", ts, key) ;
-    for(int i = 0; i<t; i++){
-        printf("%d", pilha_nodo[i]->N) ;
-        if(i < i-1) printf(",") ;
+        it = it->lookupT[idx] ;
+        pilha_nodo[t] = it ;
+        t++ ;
+        printf("ADICIONADO NODO %d A PARTIR DE %d\n", it->N, node) ;
     }
-    printf("}\n") ;
+
+    print_pilha(t, ts, key) ;
 }
