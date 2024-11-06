@@ -69,7 +69,11 @@ void fix_lookup_tables() {
     do {
         nodo_dht *it_aux = it->next ;
         for(int i = 0; i<ceil(log2((double) M)); i++){
-            while((it->N + (int) pow(2, i)) % M > it_aux->N) it_aux = it_aux->next ;
+            int fac = it->N + (int) pow(2,i) ;
+            while(fac > it_aux->N){
+                it_aux = it_aux->next ;
+                if(it_aux == RING) fac -= M ;
+            }
             it->lookupT[i] = it_aux ;
         }
 
