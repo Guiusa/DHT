@@ -72,7 +72,8 @@ void fix_lookup_tables() {
             int fac = it->N + (int) pow(2,i) ;
             while(fac > it_aux->N){
                 it_aux = it_aux->next ;
-                if(it_aux == RING) fac -= M ;
+                if(it_aux == RING)
+                    fac -= (int) pow(2, (int) ceil(log2(M))) ;
             }
             it->lookupT[i] = it_aux ;
         }
@@ -124,21 +125,12 @@ void sai_node(int node) {
 
 void insere_key(int node, int key) {
     nodo_dht *it = RING ;
-    while(it->N != node) it = it->next ;
 
-    while(it->N < key) {
-        int idx ;
-
-        if(key > M) {
-            idx = ceil(log2(M)) - 1 ;
-        } else idx = ceil(log2(key - it->N)-1) ;
-
-        if(it->lookupT[idx] == RING) {
-            it = RING ;
-            break ;
-        }
-        it = it->lookupT[idx] ;
+    while(key > it->N){
+        it = it->next ;
+        if(it == RING) break ;
     }
+
     it->keys[it->top] = key ;
     it->top++ ;
 
@@ -159,35 +151,24 @@ void print_pilha(int t, int ts, int key) {
         }
         printf("}\n") ;
     }
-    printf("\n\n") ;
 }
 void lookup_key(int ts, int node, int key) {
-    int t = 0;
+    nodo_dht *it ;
+    int t = 0 ;
+    for(it = RING ; it->N != node; it=it->next) ;
 
-    nodo_dht *it = RING ;
-    while(it->N != node) it = it->next ;
-
-    pilha_nodo[t] = it ;
-    t++ ;
-
-    while (it->N < key) {
-        int idx ;
-        if(key > M){
-            idx = ceil(log2(M)) - 1 ;
-        } else idx = ceil(log2(key - it->N)-1) ;
-
-        if(it->lookupT[idx] == RING) {
-            it = RING ;
-            pilha_nodo[t] = it ;
-            t++ ;
-            break ;
+    if(key > M){
+        int k1 = (int) pow(2, ceil(log2(M))) ;
+        while(it != RING) {
+            printf("NODO %d\n", it->N) ;
+            pilha_nodo[t++] = it ;
+            int i = floor(log2(k1 - it->N));
+            printf("%d\n", i) ;
+            it = it->lookupT[i] ;
         }
-
-        it = it->lookupT[idx] ;
-        pilha_nodo[t] = it ;
-        t++ ;
-        printf("ADICIONADO NODO %d A PARTIR DE %d\n", it->N, node) ;
+        pilha_nodo[t++] = it ;
+        print_pilha(t, ts, key) ;
+        return ;
     }
 
-    print_pilha(t, ts, key) ;
 }

@@ -1,9 +1,11 @@
 FLAGS = -Wall
 CC = gcc
 PROG = main.c
-OUT = dht
+OUT = mydht
 
 all:
 	$(CC) $(FLAGS) dht.c $(PROG) -o $(OUT) -lm
+debug:
+	$(CC) $(FLAGS) -DDEBUG dht.c $(PROG) -o $(OUT) -lm
 purge:
-	rm dht
+	rm ${OUT}

@@ -12,27 +12,43 @@ int main(){
         switch (op){
         case 'E':
             scanf("%d %c", &node, &trash) ;
+#ifdef DEBUG
+            printf("%d %c %d -\n", ts, op, node) ;
+#endif
             entra_node(node) ;
-            //printf("%d %c %d -\n", ts, op, node) ;
-            //print_ring() ;
+#ifdef DEBUG
+            print_ring() ;
+#endif
             break ;
         case 'S':
             scanf("%d %c", &node, &trash) ;
+#ifdef DEBUG
+            printf("%d %c %d -\n", ts, op, node) ;
+#endif
             sai_node(node) ;
-            //printf("%d %c %d -\n", ts, op, node) ;
-            //print_ring() ;
+#ifdef DEBUG
+            print_ring() ;
+#endif
             break ;
         case 'L':
             scanf("%d %d", &node, &key) ;
+#ifdef DEBUG
+            printf("%d %c %d %d\n", ts, op, node, key) ;
+#endif
             lookup_key(ts, node, key) ;
-            //printf("%d %c %d %d\n", ts, op, node, key) ;
-            //print_ring() ;
+#ifdef DEBUG
+            print_ring() ;
+#endif
             break ;
         case 'I':
             scanf("%d %d", &node, &key) ;
+#ifdef DEBUG
+            printf("%d %c %d %d\n", ts, op, node, key) ;
+#endif
             insere_key(node, key) ;
-            //printf("%d %c %d %d\n", ts, op, node, key) ;
-            //print_ring() ;
+#ifdef DEBUG
+            print_ring() ;
+#endif
             break ;
         }
         scanf("%d", &ts) ;
