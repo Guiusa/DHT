@@ -10,6 +10,19 @@ int Mp = 2 ;
 int Maior = 0 ;
 
 void fix_lookup_tables() {
+    nodo_dht *it = RING ;
+    do {
+        nodo_dht *aux = it->next ;
+        for(int i = 0; i<M; i++){
+            int fac = it->N + (int) pow(2, i) ;
+            while(fac > aux->N){
+                aux = aux->next ;
+                if(aux == RING) fac -= Mp ;
+            }
+            it->lookupT[i] = aux ;
+        }
+        it = it->next ;
+    }   while (it!=RING) ;
 }
 
 nodo_dht *cria_nodo(int n) {
@@ -53,9 +66,8 @@ void print_ring() {
     nodo_dht *it = RING ;
     do {
         printf("[%d]\n", it->N) ;
-        /*
         printf("[ ") ;
-        for(int i = 0; i<ceil(log2((double) M)); i++){
+        for(int i = 0; i<M; i++){
             printf("%d:%d ", (int) pow(2, i), it->lookupT[i]->N) ;
         }
         printf("]\n") ;
@@ -64,7 +76,6 @@ void print_ring() {
         for(int i = 0; i<it->top; i++)
             printf("%d ", it->keys[i]) ;
         printf("}\n") ;
-*/ 
         it = it->next ;
     } while (it != RING) ;
     printf("\n\n") ;
@@ -97,7 +108,7 @@ void sai_node(int node) {
     it->next->prev = it->prev ;
     it->prev->next = it->next ;
     if(RING == it) RING = it->next ;
-//    fix_lookup_tables() ;
+    fix_lookup_tables() ;
 }
 
 
@@ -121,7 +132,7 @@ void print_pilha(int t, int ts, int key) {
         if(i < t-1) printf(",") ;
     }
     printf("}\n") ;
-/*
+
     for(int i = 0; i<t; i++){
         printf("%d T %d {", ts, pilha_nodo[i]->N) ;
         for(int j = 0; j<M; j++){
@@ -130,7 +141,7 @@ void print_pilha(int t, int ts, int key) {
         }
         printf("}\n") ;
     }
-    */
+
 }
 
 void entra_node(int n) {
@@ -142,10 +153,25 @@ void entra_node(int n) {
         Mp = 1 << M ;
     }
     insere_nodo(nodo) ;
-    //fix_lookup_tables() ;
-    //rouba_chaves(nodo) ;
+    fix_lookup_tables() ;
+    rouba_chaves(nodo) ;
 }
 
 void lookup_key(int ts, int node, int key) {
+    int t = 0 ;
+    nodo_dht *it = RING;
+    for(; it->N != node; it=it->next) ;
+
+    if(key > M){
+        int k1 = M ;
+        while(it != RING) {
+            pilha_nodo[t++] = it ;
+            int i = floor(log2(Mp - it->N));
+            it = it->lookupT[i] ;
+        }
+        pilha_nodo[t++] = it ;
+        print_pilha(t, ts, key) ;
+        return ;
+    }
 
 }
