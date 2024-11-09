@@ -83,6 +83,15 @@ void print_ring() {
 
 void rouba_chaves(nodo_dht *nodo) {
     nodo_dht *aux = nodo->next ;
+    if(nodo == RING) {
+        for(int i = 0; i<aux->top; i++) {
+            if(aux->keys[i] < nodo->N || aux->keys[i] > Maior){
+                nodo->keys[nodo->top++] = aux->keys[i] ;
+                aux->keys[i] = aux->keys[--aux->top] ;
+            }
+        }
+        return ;
+    }
     for(int i = 0; i<aux->top;){
         if(aux->keys[i] <= nodo->N){
             if(aux == RING && aux->keys[i] <= aux-> N){
@@ -157,13 +166,18 @@ void entra_node(int n) {
     rouba_chaves(nodo) ;
 }
 
+int key_in_node(nodo_dht *n, int key){
+    for(int i = 0; i<n->top; i++)
+        if(n->keys[i] == key) return i ;
+    return -1 ;
+}
+
 void lookup_key(int ts, int node, int key) {
     int t = 0 ;
     nodo_dht *it = RING;
     for(; it->N != node; it=it->next) ;
 
-    if(key > M){
-        int k1 = M ;
+    if(key > Maior){
         while(it != RING) {
             pilha_nodo[t++] = it ;
             int i = floor(log2(Mp - it->N));
@@ -174,4 +188,20 @@ void lookup_key(int ts, int node, int key) {
         return ;
     }
 
+    while(key <= it->N && key_in_node(it, key) == -1){
+        pilha_nodo[t++] = it ;
+        int dist = (key + Mp) - it->N ;
+        int gap = (int) floor(log2(dist)) ;
+        if(gap > M) {
+            it = it->lookupT[M] ;
+        } else it = it->lookupT[gap] ;
+    }
+    while(key > it->N){
+        pilha_nodo[t++] = it ;
+        int dist = key - it->N ;
+        int gap = (int) floor(log2(dist)) ;
+        it = it->lookupT[gap] ;
+    }
+    pilha_nodo[t++] = it ;
+    print_pilha(t, ts, key) ;
 }
